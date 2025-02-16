@@ -2,7 +2,7 @@
 {
   perSystem = { config, self', pkgs, lib, ... }: {
     devShells.default = pkgs.mkShell {
-      name = "open-weightlifting-shell";
+      name = "lr-percolation-shell";
       inputsFrom = [
         self'.devShells.rust
         config.pre-commit.devShell # See ./nix/modules/pre-commit.nix
@@ -11,7 +11,6 @@
         just
         nixd # Nix language server
         bacon
-        config.process-compose.cargo-doc-live.outputs.package
       ];
     };
   };
