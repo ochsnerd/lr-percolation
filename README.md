@@ -75,7 +75,7 @@ def avg_qs_size(obs):
 
 def main():
     ls = [50, 100, 200]
-    sigma = 10
+    alpha = 10
     num_samples = 100
     seed = 42
 
@@ -97,7 +97,7 @@ def main():
             avg_qs_size(
                 lrp.simulate_linf(
                     l,
-                    sigma,
+                    alpha,
                     beta,
                     num_samples,
                     seed + 1,
@@ -111,10 +111,10 @@ def main():
     plt.legend(loc="best")
     plt.xlabel("Beta")
     plt.ylabel("S")
-    plt.title(f"Results for Different L Values (Seed: {seed}), sigma={sigma}")
+    plt.title(f"Results for Different L Values (Seed: {seed}), alpha={alpha}")
     plt.grid(True, alpha=0.3)
 
-    plt.savefig(f"percolation_results_sigma_{sigma}.png")
+    plt.savefig(f"percolation_results_alpha_{alpha}.png")
     plt.show()
 
 

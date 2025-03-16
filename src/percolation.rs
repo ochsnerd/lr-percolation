@@ -23,7 +23,7 @@ pub struct Observables {
 pub fn simulate(
     norm: Norm,
     l: usize,
-    sigma: f64,
+    alpha: f64,
     beta: f64,
     n_samples: u64,
     seed: u64,
@@ -33,7 +33,7 @@ pub fn simulate(
         .map(|i| {
             let mut rng = ChaCha8Rng::seed_from_u64(seed);
             rng.set_stream(i);
-            realize(norm, l, sigma, beta, &mut rng)
+            realize(norm, l, alpha, beta, &mut rng)
         })
         .collect()
 }
@@ -74,7 +74,7 @@ type Clusters = DisjointSets<usize>;
 /// Probability p_l = min(1, beta / l^(2 + alpha)).
 fn lr_percolation_2d<const NORM: usize, R: Rng + ?Sized>(
     l: usize,
-    sigma: f64,
+    alpha: f64,
     beta: f64,
     rng: &mut R,
 ) -> Clusters {
@@ -100,7 +100,7 @@ fn lr_percolation_2d<const NORM: usize, R: Rng + ?Sized>(
                 // I mean we don't want that, but why are we allowed to circumvent it?
                 continue;
             }
-            let p = beta / distance.powf(2.0 + sigma);
+            let p = beta / distance.powf(2.0 + alpha);
 
             let mut i: usize = 0;
             while i < l * l {
@@ -147,13 +147,13 @@ impl Observables {
 fn realize<R: Rng + ?Sized>(
     norm: Norm,
     l: usize,
-    sigma: f64,
+    alpha: f64,
     beta: f64,
     rng: &mut R,
 ) -> Observables {
     let clusters = match norm {
-        Norm::L1 => lr_percolation_2d::<1, _>(l, sigma, beta, rng),
-        Norm::LInf => lr_percolation_2d::<0, _>(l, sigma, beta, rng),
+        Norm::L1 => lr_percolation_2d::<1, _>(l, alpha, beta, rng),
+        Norm::LInf => lr_percolation_2d::<0, _>(l, alpha, beta, rng),
     };
     Observables::new(l, clusters)
 }

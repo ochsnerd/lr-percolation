@@ -28,24 +28,24 @@ mod python {
     #[pyfunction]
     fn simulate_l1(
         l: usize,
-        sigma: f64,
+        alpha: f64,
         beta: f64,
         n_samples: u64,
         seed: u64,
     ) -> PyResult<Vec<Observables>> {
-        let res = percolation::simulate(percolation::Norm::L1, l, sigma, beta, n_samples, seed);
+        let res = percolation::simulate(percolation::Norm::L1, l, alpha, beta, n_samples, seed);
         Ok(res.into_iter().map(|o| Observables::from(o)).collect())
     }
 
     #[pyfunction]
     fn simulate_linf(
         l: usize,
-        sigma: f64,
+        alpha: f64,
         beta: f64,
         n_samples: u64,
         seed: u64,
     ) -> PyResult<Vec<Observables>> {
-        let res = percolation::simulate(percolation::Norm::LInf, l, sigma, beta, n_samples, seed);
+        let res = percolation::simulate(percolation::Norm::LInf, l, alpha, beta, n_samples, seed);
         Ok(res.into_iter().map(|o| Observables::from(o)).collect())
     }
 
