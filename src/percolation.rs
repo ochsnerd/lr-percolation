@@ -1,8 +1,54 @@
+use clap::ValueEnum;
 use rand::Rng;
 use rand::{distr::StandardUniform, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
 use union_find_rs::prelude::*;
+
+#[derive(Debug, Copy, Clone, ValueEnum)]
+pub enum Norm {
+    L1,
+    LInf,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Observables {
+    /// https://arxiv.org/pdf/1610.00200
+    /// S, see Equation (5)
+    pub average_size: f64,
+    /// Q_G, see Equation (6)
+    pub size_spread: f64,
+}
+
+pub fn simulate(
+    norm: Norm,
+    l: usize,
+    sigma: f64,
+    beta: f64,
+    n_samples: u64,
+    seed: u64,
+) -> Vec<Observables> {
+    (0..n_samples)
+        .into_par_iter()
+        .map(|i| {
+            let mut rng = ChaCha8Rng::seed_from_u64(seed);
+            rng.set_stream(i);
+            realize(norm, l, sigma, beta, &mut rng)
+        })
+        .collect()
+}
+
+#[inline]
+fn l1_norm(x: usize, y: usize) -> f64 {
+    // x and y are unsigned ints, we don't need to take abs
+    (x + y) as f64
+}
+
+#[inline]
+fn linf_norm(x: usize, y: usize) -> f64 {
+    // x and y are unsigned ints, we don't need to take abs
+    x.max(y) as f64
+}
 
 /// Return the number of failures before the first success,
 /// for a Bernoulli(p) RV
@@ -26,7 +72,12 @@ type Clusters = DisjointSets<usize>;
 
 /// 2D long-range percolation with skip-based sampling.
 /// Probability p_l = min(1, beta / l^(2 + alpha)).
-fn lr_percolation_2d<R: Rng + ?Sized>(l: usize, sigma: f64, beta: f64, rng: &mut R) -> Clusters {
+fn lr_percolation_2d<const NORM: usize, R: Rng + ?Sized>(
+    l: usize,
+    sigma: f64,
+    beta: f64,
+    rng: &mut R,
+) -> Clusters {
     let mut clusters = Clusters::with_capacity(l * l);
     for i in 0..l * l {
         clusters.make_set(i).unwrap();
@@ -38,7 +89,11 @@ fn lr_percolation_2d<R: Rng + ?Sized>(l: usize, sigma: f64, beta: f64, rng: &mut
             }
             let periodic_dx = dx.min(l - dx);
             let periodic_dy = dy.min(l - dy);
-            let distance = (periodic_dx + periodic_dy) as f64; // l1, we know periodic_{x,y} are > 0
+            let distance = match NORM {
+                0 => linf_norm(periodic_dx, periodic_dy),
+                1 => l1_norm(periodic_dx, periodic_dy),
+                _ => panic!(),
+            };
             if distance < 1E-16 {
                 // TODO: is this correct?
                 // Would not (d << 1) => (p = 1) => geometric_skip = 0 => one big cluster?
@@ -72,15 +127,6 @@ fn lr_percolation_2d<R: Rng + ?Sized>(l: usize, sigma: f64, beta: f64, rng: &mut
     clusters
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct Observables {
-    /// https://arxiv.org/pdf/1610.00200
-    /// S, see Equation (5)
-    pub average_size: f64,
-    /// Q_G, see Equation (6)
-    pub size_spread: f64,
-}
-
 impl Observables {
     fn new(l: usize, clusters: Clusters) -> Self {
         // To prevent overflow, f64 instead of an int
@@ -98,18 +144,16 @@ impl Observables {
     }
 }
 
-fn realize<R: Rng + ?Sized>(l: usize, sigma: f64, beta: f64, rng: &mut R) -> Observables {
-    let clusters = lr_percolation_2d(l, sigma, beta, rng);
+fn realize<R: Rng + ?Sized>(
+    norm: Norm,
+    l: usize,
+    sigma: f64,
+    beta: f64,
+    rng: &mut R,
+) -> Observables {
+    let clusters = match norm {
+        Norm::L1 => lr_percolation_2d::<1, _>(l, sigma, beta, rng),
+        Norm::LInf => lr_percolation_2d::<0, _>(l, sigma, beta, rng),
+    };
     Observables::new(l, clusters)
-}
-
-pub fn simulate(l: usize, sigma: f64, beta: f64, n_samples: u64, seed: u64) -> Vec<Observables> {
-    (0..n_samples)
-        .into_par_iter()
-        .map(|i| {
-            let mut rng = ChaCha8Rng::seed_from_u64(seed);
-            rng.set_stream(i);
-            realize(l, sigma, beta, &mut rng)
-        })
-        .collect()
 }

@@ -3,6 +3,7 @@
 ## Build
 
 Either (with flakes)
+
 ```bash
 nix build  # builds the rust crate
 nix shell .#lr_percolation-python-env # rebuilds and enters a shell with a python knowing lr_percolation
@@ -68,12 +69,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def avg_avg_size(obs):
-    return np.average([o.average_size for o in obs])
+def avg_qs_size(obs):
+    return np.average([o.size_spread for o in obs])
 
 
 def main():
-    ls = [50, 100, 500]
+    ls = [50, 100, 200]
     sigma = 10
     num_samples = 100
     seed = 42
@@ -87,27 +88,25 @@ def main():
         "orange",
     ]
 
-    betas = list(np.arange(0.2, 0.4, 0.01))
+    betas = list(np.arange(0.01, 0.4, 0.01))
 
-    for i, l in enumerate(ls):
+    for i, (l, c) in enumerate(zip(ls, colors)):
         print(f"Processing L = {l}...")
 
         sizes = [
-            avg_avg_size(
-                lrp.simulate(
+            avg_qs_size(
+                lrp.simulate_linf(
                     l,
                     sigma,
                     beta,
                     num_samples,
-                    seed + i,
+                    seed + 1,
                 )
-            ) / (l * l)
+            )
             for beta in betas
         ]
-        plt.plot(
-            betas, sizes, color=colors[i % len(colors)], linestyle="-", linewidth=1
-        )
-        plt.scatter(betas, sizes, s=10, color=colors[i % len(colors)], label=f"l = {l}")
+        plt.plot(betas, sizes, color=c, linestyle="-", linewidth=1)
+        plt.scatter(betas, sizes, s=10, color=c, label=f"l = {l}")
 
     plt.legend(loc="best")
     plt.xlabel("Beta")
@@ -131,7 +130,6 @@ This takes 2 minutes on my machine and results in
 
 1. Make pyo3 export type info, function signatures
 2. Move check out of geometric_skip
-3. convice rust lsp that stuff is not unused, even if it's behind the python feature flag
-4. figure out if what we're doing in the interface is grossly inefficient
+3. figure out if what we're doing in the interface is grossly inefficient
    (we pass a list of custom objects, instead of an np-array of primitives)
-5. figure out some tests to write
+4. figure out some tests to write
