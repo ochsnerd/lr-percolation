@@ -88,7 +88,7 @@ impl Observables {
         for size in clusters.into_iter().map(|c| c.len()) {
             sum_power2 += size.pow(2);
             // TODO: This overflows, e.g. for l=500
-            sum_power4 += size.pow(4);
+            // sum_power4 += size.pow(4);
         }
 
         Observables {

@@ -11,15 +11,15 @@ mod python {
     struct Observables {
         #[pyo3(get)]
         average_size: f64,
-        #[pyo3(get)]
-        size_spread: f64,
+        // #[pyo3(get)]
+        //size_spread: f64,
     }
 
     impl Observables {
         fn from(o: super::Observables) -> Self {
             Observables {
                 average_size: o.average_size,
-                size_spread: o.size_spread,
+                // size_spread: o.size_spread,
             }
         }
     }
