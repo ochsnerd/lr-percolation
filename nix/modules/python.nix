@@ -6,8 +6,8 @@
       project_version = config.rust-project.crates."lr-percolation".version or "0.1.0";
 
       # Python configuration
-      python = pkgs.python310;
-      wheel_tail = "cp310-cp310-manylinux_2_34_x86_64"; # Change if pythonVersion changes
+      python = pkgs.python313;
+      wheel_tail = "cp313-cp313-manylinux_2_34_x86_64"; # Change if pythonVersion changes
       wheel_name = "${project_name}-${project_version}-${wheel_tail}.whl";
 
       # Reuse the existing Rust toolchain from rust-flake

@@ -32,7 +32,7 @@ Create `flake.nix` with the following content
     let
       pkgs = nixpkgs.legacyPackages.${system};
       lrPython = lr-percolation.outputs.packages.${system}.lr_percolation-python-env;
-      envPython = pkgs.python310.withPackages(ps: with ps; [
+      envPython = pkgs.python313.withPackages(ps: with ps; [
         numpy
         matplotlib
         # add other python packages here
