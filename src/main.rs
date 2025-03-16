@@ -5,7 +5,7 @@ mod percolation;
 pub fn main() {
     let l = 300;
     let n_samples = 200;
-    let sigma = 10.0;
+    let sigma = 8.0;
 
     let obs = simulate(l, sigma, 0.2, n_samples, 42);
 
