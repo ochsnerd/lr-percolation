@@ -1,23 +1,45 @@
-// Main library functionality
-pub fn sum_as_string(a: usize, b: usize) -> String {
-    (a + b).to_string()
-}
+use percolation::*;
+
+mod percolation;
 
 // PyO3 bindings only compiled when the python-bindings feature is enabled
 #[cfg(feature = "python-bindings")]
 mod python {
-    use super::sum_as_string;
     use pyo3::prelude::*;
 
-    /// Formats the sum of two numbers as string.
-    #[pyfunction(name = "sum_as_string")]
-    fn sum_as_string_py(a: usize, b: usize) -> PyResult<String> {
-        Ok(sum_as_string(a, b))
+    #[pyclass]
+    struct Observables {
+        #[pyo3(get)]
+        average_size: f64,
+        #[pyo3(get)]
+        size_spread: f64,
+    }
+
+    impl Observables {
+        fn from(o: super::Observables) -> Self {
+            Observables {
+                average_size: o.average_size,
+                size_spread: o.size_spread,
+            }
+        }
+    }
+
+    #[pyfunction(name = "simulate")]
+    fn simulate_py(
+        l: usize,
+        sigma: f64,
+        beta: f64,
+        n_samples: u64,
+        seed: u64,
+    ) -> PyResult<Vec<Observables>> {
+        let res = super::simulate(l, sigma, beta, n_samples, seed);
+        Ok(res.into_iter().map(|o| Observables::from(o)).collect())
     }
 
     #[pymodule]
     fn lr_percolation(m: &Bound<'_, PyModule>) -> PyResult<()> {
-        m.add_function(wrap_pyfunction!(sum_as_string_py, m)?)?;
+        m.add_class::<Observables>()?;
+        m.add_function(wrap_pyfunction!(simulate_py, m)?)?;
         Ok(())
     }
 }
