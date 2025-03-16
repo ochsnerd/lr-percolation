@@ -134,4 +134,3 @@ This takes 2 minutes on my machine and results in
 3. Move check out of geometric_skip
 4. convice rust lsp that stuff is not unused, even if it's behind the python feature flag
 5. figure out if what we're doing in the interface is grossly inefficient
-6. figure out if I can control compilaton flags - I would have expected not to get the overfow-panic in the package build

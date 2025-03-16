@@ -20,7 +20,7 @@
           (python.withPackages (ps: with ps; [ cffi setuptools pip wheel ]))
         ];
         buildPhase = old.buildPhase + ''
-          maturin build --offline --target-dir ./target --features python-bindings
+          maturin build --release --offline --target-dir ./target --features python-bindings
         '';
         installPhase = old.installPhase + ''
           ls target/wheels
