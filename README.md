@@ -99,7 +99,7 @@ def main():
                     sigma,
                     beta,
                     num_samples,
-                    seed + 1,
+                    seed + i,
                 )
             ) / (l * l)
             for beta in betas
@@ -130,7 +130,8 @@ This takes 2 minutes on my machine and results in
 # TODO
 
 1. Make pyo3 export type info, function signatures
-2. Address overflow issue when computing observables
-3. Move check out of geometric_skip
-4. convice rust lsp that stuff is not unused, even if it's behind the python feature flag
-5. figure out if what we're doing in the interface is grossly inefficient
+2. Move check out of geometric_skip
+3. convice rust lsp that stuff is not unused, even if it's behind the python feature flag
+4. figure out if what we're doing in the interface is grossly inefficient
+   (we pass a list of custom objects, instead of an np-array of primitives)
+5. figure out some tests to write

@@ -83,17 +83,17 @@ pub struct Observables {
 
 impl Observables {
     fn new(l: usize, clusters: Clusters) -> Self {
-        let mut sum_power2 = 0;
-        let mut sum_power4 = 0;
-        for size in clusters.into_iter().map(|c| c.len()) {
-            sum_power2 += size.pow(2);
-            // TODO: This overflows, e.g. for l=500
-            // sum_power4 += size.pow(4);
+        // To prevent overflow, f64 instead of an int
+        let mut sum_power2: f64 = 0.0;
+        let mut sum_power4: f64 = 0.0;
+        for size in clusters.into_iter().map(|c| c.len() as f64) {
+            sum_power2 += size.powi(2);
+            sum_power4 += size.powi(4);
         }
 
         Observables {
-            average_size: sum_power2 as f64 / (l * l) as f64,
-            size_spread: sum_power4 as f64 / sum_power2.pow(2) as f64,
+            average_size: sum_power2 / (l * l) as f64,
+            size_spread: sum_power4 / sum_power2.powi(2),
         }
     }
 }
