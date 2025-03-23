@@ -165,3 +165,87 @@ fn realize<R: Rng + ?Sized>(
     };
     Observables::new(l, clusters)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand::SeedableRng;
+    use rand_chacha::ChaCha8Rng;
+
+    #[test]
+    fn test_norm_l1_distance() {
+        assert_eq!(L1::compute_distance(3, 4), 7.0);
+        assert_eq!(L1::compute_distance(0, 5), 5.0);
+        assert_eq!(L1::compute_distance(10, 0), 10.0);
+    }
+
+    #[test]
+    fn test_norm_linf_distance() {
+        assert_eq!(LInf::compute_distance(3, 4), 4.0);
+        assert_eq!(LInf::compute_distance(0, 5), 5.0);
+        assert_eq!(LInf::compute_distance(10, 2), 10.0);
+    }
+
+    #[test]
+    fn test_geometric_skip_edge_cases() {
+        let mut rng = ChaCha8Rng::seed_from_u64(42);
+
+        // When p >= 1.0, should always return 0 (immediate success)
+        assert_eq!(geometric_skip(1.0, &mut rng), 0);
+        assert_eq!(geometric_skip(1.5, &mut rng), 0);
+
+        // When p is very small, should return usize::MAX
+        assert_eq!(geometric_skip(1e-17, &mut rng), usize::MAX);
+
+        // For p=0.5, the distribution is well-defined
+        // We test with a fixed seed for deterministic behavior
+        let mut fixed_rng = ChaCha8Rng::seed_from_u64(123);
+        let skip = geometric_skip(0.5, &mut fixed_rng);
+        // With seed 123, the value should be deterministic
+        // (Actual value depends on the exact RNG implementation)
+        assert!(skip < 100); // Sanity check - should be reasonable
+    }
+
+    #[test]
+    fn test_simple_percolation() {
+        let l = 10;
+        let alpha = 0.0;
+        let beta = 1.0; // connect everything
+
+        let mut rng = ChaCha8Rng::seed_from_u64(42);
+
+        let clusters = lr_percolation_2d::<L1, _>(l, alpha, beta, &mut rng);
+
+        assert_eq!(clusters.into_iter().count(), 1);
+    }
+
+    #[test]
+    fn test_no_percolation() {
+        let l = 10;
+        let alpha = 1.0;
+        let beta = 0.0; // connect nothing
+
+        let mut rng = ChaCha8Rng::seed_from_u64(42);
+
+        let clusters = lr_percolation_2d::<L1, _>(l, alpha, beta, &mut rng);
+
+        for c in clusters.into_iter() {
+            assert_eq!(c.len(), 1);
+        }
+    }
+
+    #[test]
+    fn test_cluster_property_invariant() {
+        // Test that total sum of clusters equals grid size
+        let l = 4; // 4x4 grid
+        let alpha = 1.5;
+        let beta = 0.5;
+        let mut rng = ChaCha8Rng::seed_from_u64(123);
+
+        let clusters = lr_percolation_2d::<L1, _>(l, alpha, beta, &mut rng);
+
+        // Sum of all cluster sizes should equal total grid size
+        let sum_sizes: usize = clusters.into_iter().map(|c| c.len()).sum();
+        assert_eq!(sum_sizes, l * l);
+    }
+}

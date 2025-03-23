@@ -128,7 +128,6 @@ This takes 2 minutes on my machine and results in
 
 # TODO
 
-1. Make pyo3 export type info, function signatures
 2. Move check out of geometric_skip
 3. figure out if what we're doing in the interface is grossly inefficient
    (we pass a list of custom objects, instead of an np-array of primitives)
