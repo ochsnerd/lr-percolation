@@ -13,7 +13,7 @@ pub enum Norm {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Observables {
-    /// https://arxiv.org/pdf/1610.00200
+    /// <https://arxiv.org/pdf/1610.00200>
     /// S, see Equation (5)
     pub average_size: f64,
     /// Q_G, see Equation (6)
@@ -82,8 +82,10 @@ impl NormType for LInf {
 /// p <= epsilon => skip=large (never success).
 /// Otherwise uses log-based approach for a geometric distribution.
 fn geometric_skip<R: Rng + ?Sized>(p: f64, rng: &mut R) -> usize {
+    // Doing this check here (as opposed to when p is first computed)
+    // seems to be more efficient at larger l. My hypothesis is that the
+    // branch predictor can work really well here
     match p {
-        // TODO: These checks should be done outside, when computing p
         p if p >= 1.0 => 0,
         p if p <= 1E-16 => usize::MAX,
         _ => {
@@ -107,13 +109,13 @@ fn lr_percolation_2d<N: NormType, R: Rng + ?Sized>(
     for i in 0..l * l {
         clusters.make_set(i).unwrap();
     }
-    for dx in 0..l {
-        for dy in 0..l {
-            if dx == 0 && dy == 0 {
+    for x in 0..l {
+        for y in 0..l {
+            if x == 0 && y == 0 {
                 continue;
             }
-            let periodic_dx = dx.min(l - dx);
-            let periodic_dy = dy.min(l - dy);
+            let periodic_dx = x.min(l - x);
+            let periodic_dy = y.min(l - y);
             let distance = N::compute_distance(periodic_dx, periodic_dy);
 
             if distance < 1E-16 {
@@ -126,19 +128,17 @@ fn lr_percolation_2d<N: NormType, R: Rng + ?Sized>(
 
             let mut i: usize = 0;
             while i < l * l {
-                let step = geometric_skip(p, rng);
-                i = i.saturating_add(step);
+                i = i.saturating_add(geometric_skip(p, rng));
                 if i >= l * l {
                     break;
                 }
 
-                let (x1, y1) = (i / l, i % l);
-                let x2 = (x1 + dx) % l;
-                let y2 = (y1 + dy) % l;
+                let dx = (i / l + x) % l;
+                let dy = (i % l + y) % l;
                 clusters
                     .union(
                         &clusters.find_set(&i).unwrap(),
-                        &clusters.find_set(&(x2 * l + y2)).unwrap(),
+                        &clusters.find_set(&(dx * l + dy)).unwrap(),
                     )
                     .unwrap();
 

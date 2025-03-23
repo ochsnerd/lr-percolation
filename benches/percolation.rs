@@ -3,7 +3,7 @@ use lr_percolation::realize;
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 
-fn realize_l1(n: usize) -> () {
+fn realize_l1(n: usize) {
     let l = f32::sqrt(n as f32) as usize;
     let alpha = 1.0;
     let beta = 0.03;

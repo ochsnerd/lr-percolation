@@ -34,7 +34,7 @@ mod python {
         seed: u64,
     ) -> PyResult<Vec<Observables>> {
         let res = percolation::simulate(percolation::Norm::L1, l, alpha, beta, n_samples, seed);
-        Ok(res.into_iter().map(|o| Observables::from(o)).collect())
+        Ok(res.into_iter().map(Observables::from).collect())
     }
 
     #[pyfunction]
@@ -46,7 +46,7 @@ mod python {
         seed: u64,
     ) -> PyResult<Vec<Observables>> {
         let res = percolation::simulate(percolation::Norm::LInf, l, alpha, beta, n_samples, seed);
-        Ok(res.into_iter().map(|o| Observables::from(o)).collect())
+        Ok(res.into_iter().map(Observables::from).collect())
     }
 
     #[pymodule]
