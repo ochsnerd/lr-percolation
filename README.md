@@ -133,7 +133,6 @@ After executing `nix-shell -p gnuplot --run "cargo bench"`, results are in `targ
 
 # TODO
 
-2. Move check out of geometric_skip
-3. figure out if what we're doing in the interface is grossly inefficient
+1. figure out if what we're doing in the interface is grossly inefficient
    (we pass a list of custom objects, instead of an np-array of primitives)
-4. figure out some tests to write
+2. How much work is it to implement LERW in rust?

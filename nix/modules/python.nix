@@ -7,11 +7,8 @@
 
       # Python configuration
       python = pkgs.python313;
-      wheel_tail = "cp313-cp313-manylinux_2_34_x86_64"; # Change if pythonVersion changes
+      wheel_tail = "cp313-cp313-linux_x86_64"; # Change if pythonVersion changes
       wheel_name = "${project_name}-${project_version}-${wheel_tail}.whl";
-
-      # Reuse the existing Rust toolchain from rust-flake
-      # ??? rustToolchain = config.rust-project.rustToolchain;
 
       # Build a Python wheel using maturin
       crate_wheel = config.packages.lr-percolation.overrideAttrs (old: {
@@ -36,7 +33,7 @@
         src = "${crate_wheel}/${wheel_name}";
         propagatedBuildInputs = [ python.pkgs.cffi ];
         doCheck = false;
-        pythonImportsCheck = [ project_name ];
+        pythonImportsCheck = [ "lr_percolation" ];
       };
 
     in
