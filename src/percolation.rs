@@ -38,16 +38,27 @@ pub fn simulate(
         .collect()
 }
 
-#[inline]
-fn l1_norm(x: usize, y: usize) -> f64 {
-    // x and y are unsigned ints, we don't need to take abs
-    (x + y) as f64
+struct L1;
+struct LInf;
+
+trait NormType {
+    fn compute_distance(x: usize, y: usize) -> f64;
 }
 
-#[inline]
-fn linf_norm(x: usize, y: usize) -> f64 {
-    // x and y are unsigned ints, we don't need to take abs
-    x.max(y) as f64
+impl NormType for L1 {
+    #[inline]
+    fn compute_distance(x: usize, y: usize) -> f64 {
+        // x and y are unsigned ints, we don't need to take abs
+        (x + y) as f64
+    }
+}
+
+impl NormType for LInf {
+    #[inline]
+    fn compute_distance(x: usize, y: usize) -> f64 {
+        // x and y are unsigned ints, we don't need to take abs
+        x.max(y) as f64
+    }
 }
 
 /// Return the number of failures before the first success,
@@ -72,7 +83,7 @@ type Clusters = DisjointSets<usize>;
 
 /// 2D long-range percolation with skip-based sampling.
 /// Probability p_l = min(1, beta / l^(2 + alpha)).
-fn lr_percolation_2d<const NORM: usize, R: Rng + ?Sized>(
+fn lr_percolation_2d<N: NormType, R: Rng + ?Sized>(
     l: usize,
     alpha: f64,
     beta: f64,
@@ -89,11 +100,8 @@ fn lr_percolation_2d<const NORM: usize, R: Rng + ?Sized>(
             }
             let periodic_dx = dx.min(l - dx);
             let periodic_dy = dy.min(l - dy);
-            let distance = match NORM {
-                0 => linf_norm(periodic_dx, periodic_dy),
-                1 => l1_norm(periodic_dx, periodic_dy),
-                _ => panic!(),
-            };
+            let distance = N::compute_distance(periodic_dx, periodic_dy);
+
             if distance < 1E-16 {
                 // TODO: is this correct?
                 // Would not (d << 1) => (p = 1) => geometric_skip = 0 => one big cluster?
@@ -152,8 +160,8 @@ fn realize<R: Rng + ?Sized>(
     rng: &mut R,
 ) -> Observables {
     let clusters = match norm {
-        Norm::L1 => lr_percolation_2d::<1, _>(l, alpha, beta, rng),
-        Norm::LInf => lr_percolation_2d::<0, _>(l, alpha, beta, rng),
+        Norm::L1 => lr_percolation_2d::<L1, _>(l, alpha, beta, rng),
+        Norm::LInf => lr_percolation_2d::<LInf, _>(l, alpha, beta, rng),
     };
     Observables::new(l, clusters)
 }
