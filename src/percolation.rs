@@ -38,6 +38,20 @@ pub fn simulate(
         .collect()
 }
 
+pub fn realize<R: Rng + ?Sized>(
+    norm: Norm,
+    l: usize,
+    alpha: f64,
+    beta: f64,
+    rng: &mut R,
+) -> Observables {
+    let clusters = match norm {
+        Norm::L1 => lr_percolation_2d::<L1, _>(l, alpha, beta, rng),
+        Norm::LInf => lr_percolation_2d::<LInf, _>(l, alpha, beta, rng),
+    };
+    Observables::new(l, clusters)
+}
+
 struct L1;
 struct LInf;
 
@@ -150,20 +164,6 @@ impl Observables {
             size_spread: sum_power4 / sum_power2.powi(2),
         }
     }
-}
-
-fn realize<R: Rng + ?Sized>(
-    norm: Norm,
-    l: usize,
-    alpha: f64,
-    beta: f64,
-    rng: &mut R,
-) -> Observables {
-    let clusters = match norm {
-        Norm::L1 => lr_percolation_2d::<L1, _>(l, alpha, beta, rng),
-        Norm::LInf => lr_percolation_2d::<LInf, _>(l, alpha, beta, rng),
-    };
-    Observables::new(l, clusters)
 }
 
 #[cfg(test)]

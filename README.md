@@ -126,6 +126,11 @@ This takes 2 minutes on my machine and results in
 
 ![](data/percolation_results_sigma_10.png)
 
+## Benchmark
+
+Benchmark code can be found in `benches/`, and executed with `cargo bench`.
+After executing `nix-shell -p gnuplot --run "cargo bench"`, results are in `target/criterion/report/index.html`.
+
 # TODO
 
 2. Move check out of geometric_skip
