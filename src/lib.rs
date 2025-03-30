@@ -1,12 +1,21 @@
 pub use percolation::*;
 
-mod percolation;
+pub mod norms;
+pub mod percolation;
 
-// PyO3 bindings only compiled when the python-bindings feature is enabled
 #[cfg(feature = "python-bindings")]
 mod python {
+    use crate::norms;
     use crate::percolation;
     use pyo3::prelude::*;
+
+    #[pyclass]
+    #[derive(Clone)]
+    enum Norm {
+        L1,
+        L2,
+        LInf,
+    }
 
     #[pyclass]
     struct Observables {
@@ -26,34 +35,27 @@ mod python {
     }
 
     #[pyfunction]
-    fn simulate_l1(
+    fn simulate(
+        norm: Norm,
         l: usize,
         alpha: f64,
         beta: f64,
         n_samples: u64,
         seed: u64,
     ) -> PyResult<Vec<Observables>> {
-        let res = percolation::simulate(percolation::Norm::L1, l, alpha, beta, n_samples, seed);
-        Ok(res.into_iter().map(Observables::from).collect())
-    }
-
-    #[pyfunction]
-    fn simulate_linf(
-        l: usize,
-        alpha: f64,
-        beta: f64,
-        n_samples: u64,
-        seed: u64,
-    ) -> PyResult<Vec<Observables>> {
-        let res = percolation::simulate(percolation::Norm::LInf, l, alpha, beta, n_samples, seed);
+        let res = match norm {
+            Norm::L1 => percolation::simulate(norms::Norm::L1, l, alpha, beta, n_samples, seed),
+            Norm::L2 => percolation::simulate(norms::Norm::L1, l, alpha, beta, n_samples, seed),
+            Norm::LInf => percolation::simulate(norms::Norm::L1, l, alpha, beta, n_samples, seed),
+        };
         Ok(res.into_iter().map(Observables::from).collect())
     }
 
     #[pymodule]
     fn lr_percolation(m: &Bound<'_, PyModule>) -> PyResult<()> {
         m.add_class::<Observables>()?;
-        m.add_function(wrap_pyfunction!(simulate_linf, m)?)?;
-        m.add_function(wrap_pyfunction!(simulate_l1, m)?)?;
+        m.add_class::<Norm>()?;
+        m.add_function(wrap_pyfunction!(simulate, m)?)?;
         Ok(())
     }
 }

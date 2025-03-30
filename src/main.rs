@@ -1,6 +1,7 @@
 use clap::Parser;
 use percolation::*;
 
+mod norms;
 mod percolation;
 
 #[derive(Parser, Debug)]
@@ -27,8 +28,8 @@ struct Args {
     seed: u64,
 
     /// Norm to use for distance calculations (l1 or linf)
-    #[arg(short = 'N', long, value_enum, default_value_t = Norm::L1)]
-    norm: Norm,
+    #[arg(short = 'N', long, value_enum, default_value_t = norms::Norm::L1)]
+    norm: norms::Norm,
 }
 
 pub fn main() {

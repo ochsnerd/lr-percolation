@@ -95,7 +95,8 @@ def main():
 
         sizes = [
             avg_qs_size(
-                lrp.simulate_linf(
+                lrp.simulate(
+                    lrp.Norm.LInf,
                     l,
                     alpha,
                     beta,

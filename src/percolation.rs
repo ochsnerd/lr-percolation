@@ -1,15 +1,10 @@
-use clap::ValueEnum;
 use rand::Rng;
 use rand::{distr::StandardUniform, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
 use union_find_rs::prelude::*;
 
-#[derive(Debug, Copy, Clone, ValueEnum)]
-pub enum Norm {
-    L1,
-    LInf,
-}
+use crate::norms::*;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Observables {
@@ -47,32 +42,10 @@ pub fn realize<R: Rng + ?Sized>(
 ) -> Observables {
     let clusters = match norm {
         Norm::L1 => lr_percolation_2d::<L1, _>(l, alpha, beta, rng),
+        Norm::L2 => lr_percolation_2d::<L2, _>(l, alpha, beta, rng),
         Norm::LInf => lr_percolation_2d::<LInf, _>(l, alpha, beta, rng),
     };
     Observables::new(l, clusters)
-}
-
-struct L1;
-struct LInf;
-
-trait NormType {
-    fn compute_distance(x: usize, y: usize) -> f64;
-}
-
-impl NormType for L1 {
-    #[inline]
-    fn compute_distance(x: usize, y: usize) -> f64 {
-        // x and y are unsigned ints, we don't need to take abs
-        (x + y) as f64
-    }
-}
-
-impl NormType for LInf {
-    #[inline]
-    fn compute_distance(x: usize, y: usize) -> f64 {
-        // x and y are unsigned ints, we don't need to take abs
-        x.max(y) as f64
-    }
 }
 
 /// Return the number of failures before the first success,
@@ -171,20 +144,6 @@ mod tests {
     use super::*;
     use rand::SeedableRng;
     use rand_chacha::ChaCha8Rng;
-
-    #[test]
-    fn test_norm_l1_distance() {
-        assert_eq!(L1::compute_distance(3, 4), 7.0);
-        assert_eq!(L1::compute_distance(0, 5), 5.0);
-        assert_eq!(L1::compute_distance(10, 0), 10.0);
-    }
-
-    #[test]
-    fn test_norm_linf_distance() {
-        assert_eq!(LInf::compute_distance(3, 4), 4.0);
-        assert_eq!(LInf::compute_distance(0, 5), 5.0);
-        assert_eq!(LInf::compute_distance(10, 2), 10.0);
-    }
 
     #[test]
     fn test_geometric_skip_edge_cases() {

@@ -8,7 +8,7 @@ fn realize_l1(n: usize) {
     let alpha = 1.0;
     let beta = 0.03;
     let mut rng = ChaCha8Rng::seed_from_u64(42);
-    realize(lr_percolation::Norm::L1, l, alpha, beta, &mut rng);
+    realize(lr_percolation::norms::Norm::L1, l, alpha, beta, &mut rng);
 }
 
 fn scaling(c: &mut Criterion) {
