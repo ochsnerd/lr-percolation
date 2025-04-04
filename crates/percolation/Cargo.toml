@@ -1,0 +1,24 @@
+[package]
+name = "percolation"
+description = ""
+version = "0.0.0"
+edition = "2024"
+
+[lib]
+name = "percolation"
+crate-type = ["lib"]
+
+[dependencies]
+rand = "0.9.0"
+rayon = "1.8"
+union-find-rs = "0.2.1"
+rand_chacha = "0.9.0"
+clap = { version = "4.5.32", features = ["derive"] }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "percolation"
+harness = false
+

@@ -1,5 +1,5 @@
-use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use lr_percolation::realize;
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
+use percolation::realize;
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 
@@ -8,7 +8,7 @@ fn realize_l1(n: usize) {
     let alpha = 1.0;
     let beta = 0.03;
     let mut rng = ChaCha8Rng::seed_from_u64(42);
-    realize(lr_percolation::norms::Norm::L1, l, alpha, beta, &mut rng);
+    realize(percolation::norms::Norm::L1, l, alpha, beta, &mut rng);
 }
 
 fn scaling(c: &mut Criterion) {

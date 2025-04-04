@@ -1,5 +1,5 @@
 use rand::Rng;
-use rand::{distr::StandardUniform, SeedableRng};
+use rand::{SeedableRng, distr::StandardUniform};
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
 use union_find_rs::prelude::*;

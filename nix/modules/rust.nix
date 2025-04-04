@@ -5,7 +5,7 @@
     inputs.rust-flake.flakeModules.nixpkgs
   ];
   perSystem = { config, self', pkgs, lib, ... }: {
-    rust-project.crates."lr-percolation".crane.args = {
+    rust-project.crates."lr_interactions".crane.args = {
       buildInputs = (lib.optionals pkgs.stdenv.isDarwin (
         with pkgs.darwin.apple_sdk.frameworks; [
           IOKit
@@ -23,6 +23,6 @@
         PYO3_PYTHON = "${pkgs.python3}/bin/python";
       };
     };
-    packages.default = self'.packages.lr-percolation;
+    packages.default = self'.packages.lr_interactions;
   };
 }

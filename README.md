@@ -6,10 +6,10 @@ Either (with flakes)
 
 ```bash
 nix build  # builds the rust crate
-nix shell .#lr_percolation-python-env # rebuilds and enters a shell with a python knowing lr_percolation
+nix shell .#lr_interactions-python-env # rebuilds and enters a shell with a python knowing lr_percolation
 ```
 
-or manually (needs rust and python with maturin installed) (untested)
+or manually (needs rust and python with maturin installed) (untested, see `nix/modules/python.nix`)
 
 ```bash
 cargo build  # builds the rust crate
@@ -18,7 +18,7 @@ maturin build --release --features python-bindings
 
 ## Use
 
-Create `flake.nix` with the following content
+Create `flake.nix` with the following content (TODO: Update)
 
 ```nix
 {
@@ -64,7 +64,7 @@ Then run `nix develop` to get a shell with the python environment.
 
 An example usage could look like this:
 ```python
-import lr_percolation as lrp
+import lr_interactions import percolation as lrp
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -133,6 +133,9 @@ Benchmark code can be found in `benches/`, and executed with `cargo bench`.
 After executing `nix-shell -p gnuplot --run "cargo bench"`, results are in `target/criterion/report/index.html`.
 
 # TODO
+
+- finish migration to cargo workspace (atm the python package cannot be imported)
+- update readme (nix shell command for ex, and check example)
 
 1. figure out if what we're doing in the interface is grossly inefficient
    (we pass a list of custom objects, instead of an np-array of primitives)

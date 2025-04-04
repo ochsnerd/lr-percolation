@@ -1,0 +1,19 @@
+[package]
+name = "lr_interactions"
+description = ""
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+percolation = { path = "../percolation" }
+
+[lib]
+name = "lr_interactions"
+crate-type = ["cdylib"]
+
+[features]
+default = []
+python-bindings = ["pyo3/extension-module"]
+
+[dependencies.pyo3]
+version = "0.24.0"

@@ -2,8 +2,8 @@
   perSystem = { config, self', pkgs, lib, system, ... }:
     let
       # underscore to get a valid python package name
-      project_name = config.rust-project.crates."lr-percolation".name or "lr_percolation";
-      project_version = config.rust-project.crates."lr-percolation".version or "0.1.0";
+      project_name = config.rust-project.crates."lr_interactions".name or "lr_interactions";
+      project_version = config.rust-project.crates."lr_interactions".version or "0.0.0";
 
       # Python configuration
       python = pkgs.python313;
@@ -11,13 +11,13 @@
       wheel_name = "${project_name}-${project_version}-${wheel_tail}.whl";
 
       # Build a Python wheel using maturin
-      crate_wheel = config.packages.lr-percolation.overrideAttrs (old: {
+      crate_wheel = config.packages.lr_interactions.overrideAttrs (old: {
         nativeBuildInputs = old.nativeBuildInputs ++ [
           pkgs.maturin
           (python.withPackages (ps: with ps; [ cffi setuptools pip wheel ]))
         ];
         buildPhase = old.buildPhase + ''
-          maturin build --release --offline --target-dir ./target --features python-bindings
+          maturin build -m crates/lr_interactions/Cargo.toml --release --offline --target-dir ./target --features python-bindings
         '';
         installPhase = old.installPhase + ''
           ls target/wheels
@@ -33,7 +33,7 @@
         src = "${crate_wheel}/${wheel_name}";
         propagatedBuildInputs = [ python.pkgs.cffi ];
         doCheck = false;
-        pythonImportsCheck = [ "lr_percolation" ];
+        pythonImportsCheck = [ project_name ];
       };
 
     in
