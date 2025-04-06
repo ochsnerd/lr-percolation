@@ -27,8 +27,8 @@ impl Observables {
     }
 }
 
-#[pyfunction]
-fn simulate(
+#[pyfunction(name = "simulate")]
+fn simulate_perc(
     norm: Norm,
     l: usize,
     alpha: f64,
@@ -44,16 +44,44 @@ fn simulate(
     Ok(res.into_iter().map(Observables::from).collect())
 }
 
-#[pymodule]
-fn lr_interactions(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    register_percolation(m)?;
-    Ok(())
-}
-
 fn register_percolation(parent_module: &Bound<'_, PyModule>) -> PyResult<()> {
     let percolation = PyModule::new(parent_module.py(), "percolation")?;
     percolation.add_class::<Observables>()?;
     percolation.add_class::<Norm>()?;
-    percolation.add_function(wrap_pyfunction!(simulate, &percolation)?)?;
+    percolation.add_function(wrap_pyfunction!(simulate_perc, &percolation)?)?;
     parent_module.add_submodule(&percolation)
+}
+
+#[pyclass]
+struct Point2D {
+    #[pyo3(get)]
+    x: i32,
+    #[pyo3(get)]
+    y: i32,
+}
+
+impl Point2D {
+    fn from(p: lerw::Point2D) -> Self {
+        Point2D { x: p.x, y: p.y }
+    }
+}
+
+#[pyfunction(name = "simulate")]
+fn simulate_lerw(len: usize, seed: u64) -> PyResult<Vec<Point2D>> {
+    let res = lerw::simulate(len, seed);
+    Ok(res.into_iter().map(Point2D::from).collect())
+}
+
+fn register_lerw(parent_module: &Bound<'_, PyModule>) -> PyResult<()> {
+    let lerw = PyModule::new(parent_module.py(), "random_walks")?;
+    lerw.add_class::<Point2D>()?;
+    lerw.add_function(wrap_pyfunction!(simulate_lerw, &lerw)?)?;
+    parent_module.add_submodule(&lerw)
+}
+
+#[pymodule]
+fn lr_interactions(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    register_percolation(m)?;
+    register_lerw(m)?;
+    Ok(())
 }

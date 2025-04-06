@@ -1,0 +1,13 @@
+[package]
+name = "lerw"
+description = ""
+version = "0.0.0"
+edition = "2024"
+
+[lib]
+name = "lerw"
+crate-type = ["lib"]
+
+[dependencies]
+rand = "0.9.0"
+rand_chacha = "0.9.0"

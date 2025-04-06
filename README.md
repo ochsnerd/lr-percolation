@@ -64,7 +64,8 @@ Then run `nix develop` to get a shell with the python environment.
 
 An example usage could look like this:
 ```python
-import lr_interactions import percolation as lrp
+from lr_interactions import percolation as lrp
+from lr_interactions import random_walks as lrw
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -117,6 +118,9 @@ def main():
 
     plt.savefig(f"percolation_results_alpha_{alpha}.png")
     plt.show()
+	
+	# TODO: nice
+	print(list(map(lambda p: (p.x, p.y), lrw.simulate(100, 1))))
 
 
 if __name__ == "__main__":

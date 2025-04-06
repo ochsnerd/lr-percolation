@@ -6,6 +6,7 @@ edition = "2024"
 
 [dependencies]
 percolation = { path = "../percolation" }
+lerw = { path = "../lerw" }
 
 [lib]
 name = "lr_interactions"
